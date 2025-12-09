@@ -37,35 +37,9 @@ class VisitController extends Controller
     
     public function show(Visit $visit)
     {
-        $visit->load(['services.products.product', 'retailItems.product']);
+        $visit->load(['client', 'services.products.product', 'retailItems.product']);
         
-        $servicesData = $visit->services->map(function($service) {
-            return [
-                'title' => $service->title,
-                'note' => $service->note,
-                'products' => $service->products->map(function($sp) {
-                    return [
-                        'product_id' => $sp->product_id,
-                        'name' => $sp->product->name,
-                        'used_grams' => $sp->used_grams,
-                    ];
-                })->values()
-            ];
-        })->values();
-        
-        $retailData = $visit->retailItems->map(function($item) {
-            return [
-                'product_id' => $item->product_id,
-                'name' => $item->product->name,
-                'quantity_units' => $item->quantity_units,
-                'unit_price' => $item->unit_price,
-            ];
-        })->values();
-        
-        return response()->json([
-            'services' => $servicesData,
-            'retail' => $retailData
-        ]);
+        return view('visits.show', compact('visit'));
     }
 
     public function store(Request $request, VisitClosingService $closer)

@@ -272,6 +272,14 @@
                     <div class="text-xs text-slate-400">Sklad ks + odpis v gramech</div>
                 </div>
             </a>
+            <a href="{{ route('finance.index') }}"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
+                <span class="h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_0_6px_rgba(251,191,36,0.15)]"></span>
+                <div>
+                    <div class="text-sm font-semibold">💰 Finance</div>
+                    <div class="text-xs text-slate-400">Přehled příjmů</div>
+                </div>
+            </a>
         </nav>
         <div class="mt-auto p-4 space-y-2">
             <a href="{{ route('settings.index') }}" class="block w-full px-3 py-2 rounded-lg bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 transition-colors text-center">
@@ -279,8 +287,8 @@
             </a>
             <form method="POST" action="{{ route('auth.logout') }}">
                 @csrf
-                <button type="submit" class="w-full px-3 py-2 rounded-lg bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 transition-colors">
-                    🔓 Odhlásit se
+                <button type="submit" class="w-full px-3 py-2 rounded-lg bg-red-500/10 text-red-400 text-sm hover:bg-red-500/20 transition-colors">
+                    🚪 Odhlásit
                 </button>
             </form>
             <div class="text-xs text-slate-400 space-y-1">

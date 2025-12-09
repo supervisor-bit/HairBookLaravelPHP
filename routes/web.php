@@ -11,6 +11,7 @@ use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\FinanceController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routes (bez middleware)
@@ -26,6 +27,7 @@ Route::middleware(['check.app.password'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');
 
 Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
 Route::put('/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
