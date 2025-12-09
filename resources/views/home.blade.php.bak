@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Úvodní přehled - HairBook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.4/dist/cdn.min.js" defer></script>
+    <style>
+        body { font-family: 'Manrope', system-ui, -apple-system, sans-serif; }
+        .glass { 
+            background: linear-gradient(135deg, rgba(33, 39, 55, 0.85), rgba(21, 27, 43, 0.82)); 
+            backdrop-filter: blur(16px); 
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen overflow-hidden flex">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(90,204,255,0.12),transparent_30%),radial-gradient(circle_at_80%_10%,rgba(255,117,215,0.12),transparent_25%),radial-gradient(circle_at_50%_80%,rgba(120,178,255,0.10),transparent_25%)] pointer-events-none"></div>
+
+    <!-- Sidebar -->
+    <nav class="relative z-10 container mx-auto px-6 py-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                    <span class="text-2xl">✂️</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">HairBook</h1>
+                    <p class="text-xs text-slate-400">Profesionální správa salonu</p>
+                </div>
+            </div>
+            
+            @auth
+                <a href="{{ route('dashboard') }}" 
+                   class="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-slate-950 font-semibold rounded-lg hover:from-emerald-400 hover:to-emerald-500 transition-all shadow-lg shadow-emerald-500/25">
+                    Přejít na Dashboard
+                </a>
+            @else
+                <a href="{{ route('login') }}" 
+                   class="px-6 py-2.5 glass border border-slate-700 font-semibold rounded-lg hover:border-emerald-500 transition-all">
+                    Přihlásit se
+                </a>
+            @endauth
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative z-10 container mx-auto px-6 py-20">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-2 glass border border-slate-700 rounded-full mb-8">
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm text-slate-300">Moderní řešení pro kadeřníky</span>
+                </div>
+                
+                <h2 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-emerald-200 to-emerald-400 bg-clip-text text-transparent animate-gradient">
+                    Spravujte svůj salon<br/>efektivněji
+                </h2>
+                
+                <p class="text-xl text-slate-300 max-w-2xl mx-auto mb-12">
+                    Komplexní systém pro správu klientů, návštěv, zásob a služeb. 
+                    Vše na jednom místě, jednoduše a přehledně.
+                </p>
+
+                @guest
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ route('login') }}" 
+                       class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-slate-950 font-bold text-lg rounded-xl hover:from-emerald-400 hover:to-emerald-500 transition-all shadow-2xl shadow-emerald-500/25">
+                        🚀 Začít používat
+                    </a>
+                    <a href="#features" 
+                       class="px-8 py-4 glass border border-slate-700 font-semibold text-lg rounded-xl hover:border-emerald-500 transition-all">
+                        Zjistit více
+                    </a>
+                </div>
+                @endguest
+            </div>
+
+            <!-- Features Grid -->
+            <div id="features" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-20">
+                <!-- Feature 1 -->
+                <div class="glass border border-slate-700 rounded-2xl p-8 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                        <span class="text-3xl">👥</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Správa klientů</h3>
+                    <p class="text-slate-400">
+                        Udržujte si přehled o všech klientech, jejich historii návštěv a preferencích. Přidávejte poznámky a sledujte loajalitu.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="glass border border-slate-700 rounded-2xl p-8 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                        <span class="text-3xl">✂️</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Evidence návštěv</h3>
+                    <p class="text-slate-400">
+                        Zaznamenávejte provedené služby, použité produkty a ceny. Exportujte návštěvy do PDF pro faktury.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="glass border border-slate-700 rounded-2xl p-8 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/25 group-hover:scale-110 transition-transform">
+                        <span class="text-3xl">📦</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Správa zásob</h3>
+                    <p class="text-slate-400">
+                        Sledujte stav skladových zásob, spotřebu produktů a nastavte upozornění na nízké stavy.
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="glass border border-slate-700 rounded-2xl p-8 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-orange-500/25 group-hover:scale-110 transition-transform">
+                        <span class="text-3xl">💰</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Finanční přehled</h3>
+                    <p class="text-slate-400">
+                        Sledujte tržby, otevřené i uzavřené návštěvy. Získejte přehled o ekonomice vašeho salonu.
+                    </p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="glass border border-slate-700 rounded-2xl p-8 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-pink-500/25 group-hover:scale-110 transition-transform">
+                        <span class="text-3xl">📋</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Šablony služeb</h3>
+                    <p class="text-slate-400">
+                        Vytvářejte šablony často používaných služeb s produkty a cenami pro rychlejší práci.
+                    </p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="glass border border-slate-700 rounded-2xl p-8 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-cyan-500/25 group-hover:scale-110 transition-transform">
+                        <span class="text-3xl">🔄</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Záloha dat</h3>
+                    <p class="text-slate-400">
+                        Pravidelně zálohujte všechna data a obnovujte je kdykoliv. Vaše data jsou v bezpečí.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="relative z-10 container mx-auto px-6 py-20">
+        <div class="max-w-4xl mx-auto glass border border-slate-700 rounded-3xl p-12">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold mb-4">Proč HairBook?</h3>
+                <p class="text-slate-400">Systém navržený kadeřníky pro kadeřníky</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="text-5xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent mb-2">
+                        100%
+                    </div>
+                    <p class="text-slate-400">Zdarma</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent mb-2">
+                        ∞
+                    </div>
+                    <p class="text-slate-400">Neomezený počet klientů</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent mb-2">
+                        24/7
+                    </div>
+                    <p class="text-slate-400">Přístup kdykoliv</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 container mx-auto px-6 py-12 border-t border-slate-800 mt-20">
+        <div class="text-center text-slate-400">
+            <p class="mb-4">© {{ date('Y') }} HairBook - Profesionální správa kadeřnického salonu</p>
+            <p class="text-sm">Vytvořeno s ❤️ pro kadeřnické profíky</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nová návštěva - {{ $client->name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Manrope', 'system-ui', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.4/dist/cdn.min.js" defer></script>
+    <style>
+        body { font-family: 'Manrope', system-ui, -apple-system, sans-serif; }
+        [x-cloak] { display: none; }
+        
+        /* Datalist custom styling */
+        input[list]::-webkit-calendar-picker-indicator {
+            filter: brightness(0) saturate(100%) invert(71%) sepia(56%) saturate(464%) hue-rotate(101deg) brightness(96%) contrast(89%);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden bg-slate-950 text-slate-100">
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(90,204,255,0.12),transparent_30%),radial-gradient(circle_at_80%_10%,rgba(255,117,215,0.12),transparent_25%),radial-gradient(circle_at_50%_80%,rgba(120,178,255,0.10),transparent_25%)] pointer-events-none"></div>
+
+<div class="relative h-full flex flex-col" x-data="visitForm()">
+    <!-- Header -->
+    <div class="border-b border-slate-800 bg-slate-900/50 backdrop-blur">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('dashboard', ['section' => 'clients', 'client' => $client->id]) }}" 
+                   class="px-3 py-2 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 text-sm">
+                    ← Zpět
+                </a>
+                <div>
+                    <div class="text-xs uppercase tracking-[0.2em] text-slate-400">Nová návštěva</div>
+                    <div class="text-lg font-semibold">{{ $client->name }}</div>
+                </div>
+            </div>
+            <label class="text-sm text-slate-300 flex items-center gap-2">
+                <input type="checkbox" x-model="closeNow" class="rounded border-slate-700 bg-slate-900/60">
+                Uzavřít hned (odepsat sklad)
+            </label>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-y-auto">
+        <div class="max-w-6xl mx-auto px-6 py-6">
+            <form method="POST" action="{{ route('visits.store') }}" class="space-y-6" x-ref="visitForm">
+                @csrf
+                <input type="hidden" name="client_id" value="{{ $client->id }}">
+                <input type="hidden" name="close_now" :value="closeNow ? 1 : 0">
+                
+                <!-- Basic Info -->
+                <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="text-sm text-slate-300 space-y-1">
+                            <span>Datum a čas</span>
+                            <input name="occurred_at" type="datetime-local" value="{{ now()->format('Y-m-d\TH:i') }}" 
+                                   class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                        </label>
+                        <label class="text-sm text-slate-300 space-y-1">
+                            <span>Cena za návštěvu</span>
+                            <input name="total_price" type="number" step="0.01" placeholder="0" 
+                                   class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                        </label>
+                    </div>
+                    <label class="text-sm text-slate-300 space-y-1">
+                        <span>Poznámka</span>
+                        <textarea name="note" rows="2" 
+                                  class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none" 
+                                  placeholder="Krátký popis návštěvy"></textarea>
+                    </label>
+                </div>
+
+                <!-- Services -->
+                <div class="bg-slate-900/50 border border-slate-800 rounded-xl">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+                        <div class="text-lg font-semibold text-slate-200">Úkony a materiál</div>
+                        <button type="button" @click="addService()" 
+                                class="px-4 py-2 rounded-lg bg-slate-800 text-slate-100 hover:bg-slate-700">+ Úkon</button>
+                    </div>
+                    <div class="p-6 space-y-4" data-services-scroll>
+                        <template x-for="(service, sIndex) in services" :key="sIndex">
+                            <div class="border border-slate-700 rounded-xl p-4 space-y-4 bg-slate-900/60" data-service-card>
+                                <div class="flex items-center justify-between">
+                                    <div class="text-sm font-semibold text-slate-300">Úkon <span x-text="sIndex + 1"></span></div>
+                                    <button type="button" @click="services.splice(sIndex,1)" 
+                                            class="text-xs px-3 py-2 rounded-lg bg-red-500/20 text-red-200 hover:bg-red-500/30">Odebrat úkon</button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <input :name="`services[${sIndex}][title]`" x-model="service.title" placeholder="Název úkonu" 
+                                           class="bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                                    <input :name="`services[${sIndex}][note]`" x-model="service.note" placeholder="Poznámka" 
+                                           class="bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                                </div>
+                                
+                                <!-- Products -->
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="text-xs uppercase tracking-[0.2em] text-slate-400">Produkty (g)</div>
+                                        <button type="button" @click="addProduct(service)" 
+                                                class="text-xs px-3 py-1 rounded-lg bg-slate-800 text-slate-100 hover:bg-slate-700">+ produkt</button>
+                                    </div>
+                                    <template x-for="(prod, pIndex) in service.products" :key="pIndex">
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <div class="relative">
+                                                <input type="text" 
+                                                       :list="`products-${sIndex}-${pIndex}`"
+                                                       x-model="prod.product_name"
+                                                       @change="updateProductId(prod, $event.target.value)"
+                                                       placeholder="Vyberte produkt"
+                                                       class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                                                <datalist :id="`products-${sIndex}-${pIndex}`">
+                                                    <template x-for="p in products" :key="p.id">
+                                                        <option :value="p.name" x-text="`${p.name} - ${p.sku || 'bez SKU'} - ${Number(p.stock).toFixed(3)} ks`"></option>
+                                                    </template>
+                                                </datalist>
+                                                <input type="hidden" :name="`services[${sIndex}][products][${pIndex}][product_id]`" x-model="prod.product_id">
+                                            </div>
+                                            <input type="number" step="0.01" placeholder="Použito g" x-model="prod.used_grams" 
+                                                   :name="`services[${sIndex}][products][${pIndex}][used_grams]`" 
+                                                   class="bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                                            <button type="button" @click="service.products.splice(pIndex,1)" 
+                                                    class="text-xs px-3 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Odebrat</button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Retail -->
+                <div class="bg-slate-900/50 border border-slate-800 rounded-xl">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+                        <div class="text-lg font-semibold text-slate-200">Prodej domů (ks)</div>
+                        <button type="button" @click="addRetail()" 
+                                class="px-4 py-2 rounded-lg bg-slate-800 text-slate-100 hover:bg-slate-700">+ položka</button>
+                    </div>
+                    <div class="p-6 space-y-3" data-retail-scroll>
+                        <template x-for="(item, rIndex) in retail" :key="rIndex">
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="relative">
+                                    <input type="text" 
+                                           :list="`products-retail-${rIndex}`"
+                                           x-model="item.product_name"
+                                           @change="updateProductId(item, $event.target.value)"
+                                           placeholder="Vyberte produkt"
+                                           class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                                    <datalist :id="`products-retail-${rIndex}`">
+                                        <template x-for="p in products" :key="p.id">
+                                            <option :value="p.name" x-text="`${p.name} - ${p.sku || 'bez SKU'} - ${Number(p.stock).toFixed(3)} ks`"></option>
+                                        </template>
+                                    </datalist>
+                                    <input type="hidden" :name="`retail[${rIndex}][product_id]`" x-model="item.product_id">
+                                </div>
+                                <input type="number" step="0.01" min="0" placeholder="Ks" x-model="item.quantity_units" 
+                                       :name="`retail[${rIndex}][quantity_units]`" 
+                                       class="bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                                <button type="button" @click="retail.splice(rIndex,1)" 
+                                        class="text-xs px-3 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Odebrat</button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between bg-slate-900/50 border border-slate-800 rounded-xl px-6 py-4">
+                    <div class="text-xs text-slate-400">Draft → uzavřením se odečte sklad (g → ks)</div>
+                    <button type="button" @click="openConfirm()" 
+                            class="px-6 py-3 rounded-lg bg-emerald-500 text-slate-950 font-semibold hover:bg-emerald-400 text-base">
+                        Uložit návštěvu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <template x-if="confirmOpen">
+        <template x-teleport="body">
+            <div x-cloak class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[100]">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-xs uppercase tracking-[0.2em] text-slate-400">Souhrn odpisu</div>
+                            <div class="text-lg font-semibold text-white">Před uložením návštěvy</div>
+                        </div>
+                        <button type="button" @click="confirmOpen=false" class="text-slate-400 hover:text-white text-sm">Zavřít</button>
+                    </div>
+
+                    <template x-if="validationErrors.length > 0">
+                        <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-3 space-y-1">
+                            <div class="text-sm font-semibold text-red-200">Chyby ve formuláři:</div>
+                            <template x-for="error in validationErrors" :key="error">
+                                <div class="text-xs text-red-300" x-text="error"></div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="validationErrors.length === 0">
+                        <div class="space-y-3">
+                            <template x-if="summary.services.length > 0">
+                                <div class="space-y-2">
+                                    <div class="text-sm font-semibold text-slate-200">Materiál (služby):</div>
+                                    <template x-for="s in summary.services" :key="s.id">
+                                        <div class="flex justify-between text-xs bg-slate-800/50 px-3 py-2 rounded">
+                                            <span x-text="s.name"></span>
+                                            <span class="text-slate-400" x-text="`-${s.grams} g → -${s.units.toFixed(3)} ks`"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <template x-if="summary.retail.length > 0">
+                                <div class="space-y-2">
+                                    <div class="text-sm font-semibold text-slate-200">Prodej domů:</div>
+                                    <template x-for="r in summary.retail" :key="r.id">
+                                        <div class="flex justify-between text-xs bg-slate-800/50 px-3 py-2 rounded">
+                                            <span x-text="r.name"></span>
+                                            <span class="text-slate-400" x-text="`-${r.units.toFixed(3)} ks`"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <template x-if="!closeNow">
+                                <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-xs text-amber-200">
+                                    ⚠️ Návštěva se uloží jako <strong>Draft</strong>. Sklad se <strong>neodečte</strong>.
+                                </div>
+                            </template>
+                            <template x-if="closeNow">
+                                <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 text-xs text-emerald-200">
+                                    ✓ Návštěva se uzavře. Sklad se <strong>odečte ihned</strong>.
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" @click="confirmOpen=false" 
+                                class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700">Zpět</button>
+                        <button type="button" @click="submit()" :disabled="validationErrors.length > 0"
+                                :class="validationErrors.length > 0 ? 'opacity-50 cursor-not-allowed' : ''"
+                                class="px-4 py-2 rounded-lg bg-emerald-500 text-slate-950 font-semibold hover:bg-emerald-400">
+                            Potvrdit a uložit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </template>
+</div>
+
+<script>
+    window.productDataset = window.productDataset ?? @json($productDataset);
+
+    function visitForm() {
+        return {
+            products: window.productDataset || [],
+            services: [{
+                title: 'Úkon 1',
+                note: '',
+                products: [{product_id: '', product_name: '', used_grams: ''}],
+            }],
+            retail: [],
+            closeNow: false,
+            confirmOpen: false,
+            summary: {services: [], retail: []},
+            validationErrors: [],
+            addService() {
+                this.services.push({
+                    title: 'Úkon ' + (this.services.length + 1),
+                    note: '',
+                    products: [{product_id: '', product_name: '', used_grams: ''}],
+                });
+            },
+            addProduct(service) {
+                service.products.push({product_id: '', product_name: '', used_grams: ''});
+            },
+            addRetail() {
+                this.retail.push({product_id: '', product_name: '', quantity_units: '', unit_price: ''});
+            },
+            updateProductId(item, name) {
+                const product = (window.productDataset || []).find(p => p.name === name);
+                if (product) {
+                    item.product_id = product.id;
+                    item.product_name = product.name;
+                } else {
+                    item.product_id = '';
+                }
+            },
+            productName(id) {
+                const found = (window.productDataset || []).find(p => p.id == id);
+                return found ? found.name : `Produkt #${id}`;
+            },
+            productData(id) {
+                return (window.productDataset || []).find(p => p.id == id);
+            },
+            buildSummary() {
+                const servicesMap = {};
+                const errors = [];
+                this.services.forEach(s => {
+                    (s.products || []).forEach(p => {
+                        const pid = p.product_id;
+                        const grams = parseFloat(p.used_grams || 0);
+                        if (!pid && !(grams > 0)) {
+                            return;
+                        }
+                        if (!pid && grams > 0) {
+                            errors.push('Produkt vyplněn množství bez výběru produktu (služby)');
+                            return;
+                        }
+                        if (pid && !(grams > 0)) {
+                            errors.push('Produkt vybrán bez vyplnění množství (služby)');
+                            return;
+                        }
+                        if (!servicesMap[pid]) {
+                            servicesMap[pid] = {id: pid, grams: 0};
+                        }
+                        servicesMap[pid].grams += grams;
+                    });
+                });
+                const retailMap = {};
+                this.retail.forEach(r => {
+                    const pid = r.product_id;
+                    const units = parseFloat(r.quantity_units || 0);
+                    if (!pid && !(units > 0)) {
+                        return;
+                    }
+                    if (!pid && units > 0) {
+                        errors.push('Produkt vyplněn množství bez výběru produktu (prodej)');
+                        return;
+                    }
+                    if (pid && !(units > 0)) {
+                        errors.push('Produkt vybrán bez vyplnění množství (prodej)');
+                        return;
+                    }
+                    if (!retailMap[pid]) {
+                        retailMap[pid] = {id: pid, units: 0};
+                    }
+                    retailMap[pid].units += units;
+                });
+                const finalServices = Object.values(servicesMap).map(item => {
+                    const pd = this.productData(item.id);
+                    const ratio = parseFloat(pd?.units_per_unit || 1000);
+                    return {
+                        id: item.id,
+                        name: this.productName(item.id),
+                        grams: item.grams,
+                        units: item.grams / ratio
+                    };
+                });
+                const finalRetail = Object.values(retailMap).map(item => ({
+                    id: item.id,
+                    name: this.productName(item.id),
+                    units: item.units
+                }));
+                this.summary = {services: finalServices, retail: finalRetail};
+                this.validationErrors = errors;
+            },
+            openConfirm() {
+                this.buildSummary();
+                this.confirmOpen = true;
+            },
+            submit() {
+                this.$refs.visitForm.submit();
+            }
+        }
+    }
+</script>
+</body>
+</html>
