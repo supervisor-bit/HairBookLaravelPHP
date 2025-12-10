@@ -285,13 +285,13 @@
                                 <div>
                                     <label class="block text-sm font-medium text-slate-300 mb-2">Čas od *</label>
                                     <input type="time" name="start_time" required 
-                                           :value="appointmentModal.appointment?.start_time ? appointmentModal.appointment.start_time.substring(0, 5) : (appointmentModal.defaultTime || '')"
+                                           x-init="$el.value = appointmentModal.appointment?.start_time ? appointmentModal.appointment.start_time.substring(0, 5) : (appointmentModal.defaultTime || '')"
                                            class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-300 mb-2">Čas do *</label>
                                     <input type="time" name="end_time" required 
-                                           :value="appointmentModal.appointment?.end_time ? appointmentModal.appointment.end_time.substring(0, 5) : ''"
+                                           x-init="$el.value = appointmentModal.appointment?.end_time ? appointmentModal.appointment.end_time.substring(0, 5) : ''"
                                            class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 </div>
                             </div>
