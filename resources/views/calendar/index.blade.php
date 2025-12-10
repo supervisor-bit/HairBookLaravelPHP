@@ -28,12 +28,12 @@
 
 <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 border-r border-slate-800 glass flex flex-col overflow-hidden">
+    <aside class="w-64 border-r border-slate-800 glass flex flex-col">
         <div class="p-5">
             <div class="text-xs uppercase tracking-[0.3em] text-slate-400">HairBook</div>
             <div class="text-2xl font-semibold">Salon OS</div>
         </div>
-        <nav class="px-3 space-y-2 flex-1 overflow-y-auto">
+        <nav class="px-3 space-y-2 flex-1">
             <a href="{{ route('home') }}"
                class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
                 <span class="h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_0_6px_rgba(192,132,252,0.15)]"></span>
@@ -92,7 +92,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-8" x-data="{
+    <main class="flex-1 p-8 overflow-y-auto h-screen" x-data="{
         appointmentModal: { show: false, appointment: null },
         selectedDate: '{{ $selectedDate->format('Y-m-d') }}',
         openAppointmentModal(appointment = null) {
@@ -118,7 +118,7 @@
             </div>
 
             <!-- Date Navigation -->
-            <div class="glass rounded-xl p-6 mb-6 border border-slate-700/50">
+            <div class="glass rounded-xl p-6 mb-6 border border-slate-700/50 sticky top-0 z-10">
                 <div class="flex items-center justify-between">
                     <button @click="changeDate(-1)" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
                         ← Předchozí den
