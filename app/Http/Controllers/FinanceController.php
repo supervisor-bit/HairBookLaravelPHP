@@ -41,12 +41,12 @@ class FinanceController extends Controller
         $totalCombined = $totalRevenue + $totalRetail;
         
         // Statistika prodejů po měsících
-        $monthlySales = Visit::selectRaw('
-                DATE_FORMAT(occurred_at, "%Y-%m") as month,
+        $monthlySales = Visit::selectRaw("
+                strftime('%Y-%m', occurred_at) as month,
                 SUM(total_price) as total_services,
                 SUM(retail_price) as total_retail,
                 COUNT(*) as visit_count
-            ')
+            ")
             ->whereNotNull('closed_at')
             ->when($period !== 'all', function($q) use ($now, $period) {
                 switch ($period) {

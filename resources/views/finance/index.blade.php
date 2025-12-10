@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -138,110 +140,133 @@
             </div>
         </div>
 
-        {{-- Statistika po měsících --}}
-        @if($monthlySales->isNotEmpty())
-        <div class="px-6 py-4 border-b border-slate-800">
-            <div class="text-sm font-semibold text-slate-200 mb-3">📊 Statistika po měsících</div>
-            <div class="glass border border-slate-700 rounded-xl overflow-hidden">
-                <table class="w-full">
-                    <thead class="bg-slate-800/50">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Měsíc</th>
-                            <th class="px-4 py-2 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Služby</th>
-                            <th class="px-4 py-2 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Prodej domů</th>
-                            <th class="px-4 py-2 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Celkem</th>
-                            <th class="px-4 py-2 text-center text-xs font-semibold text-slate-300 uppercase tracking-wider">Návštěv</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800">
-                        @foreach($monthlySales as $sale)
-                            <tr class="hover:bg-slate-800/30 transition">
-                                <td class="px-4 py-2 text-sm font-medium text-slate-200">
-                                    {{ \Carbon\Carbon::parse($sale->month . '-01')->locale('cs')->isoFormat('MMMM YYYY') }}
-                                </td>
-                                <td class="px-4 py-2 text-right text-sm text-emerald-400 font-semibold">
-                                    {{ number_format($sale->total_services, 0, ',', ' ') }} Kč
-                                </td>
-                                <td class="px-4 py-2 text-right text-sm text-sky-400 font-semibold">
-                                    {{ number_format($sale->total_retail ?? 0, 0, ',', ' ') }} Kč
-                                </td>
-                                <td class="px-4 py-2 text-right text-lg text-emerald-300 font-bold">
-                                    {{ number_format(($sale->total_services + ($sale->total_retail ?? 0)), 0, ',', ' ') }} Kč
-                                </td>
-                                <td class="px-4 py-2 text-center text-sm text-slate-300">
-                                    {{ $sale->visit_count }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        @endif
-
-        {{-- Seznam návštěv --}}
-        <div class="flex-1 overflow-y-auto px-6 py-4">
-            @if($visits->isEmpty())
-                <div class="flex items-center justify-center h-full">
-                    <div class="text-center text-slate-400">
-                        <div class="text-6xl mb-4">📊</div>
-                        <div class="text-xl font-semibold mb-2">Žádné návštěvy</div>
-                        <div class="text-sm">V tomto období nebyly uzavřeny žádné návštěvy</div>
-                    </div>
-                </div>
-            @else
+        {{-- Obsah --}}
+        <div class="flex-1 overflow-y-auto">
+            {{-- Statistika po měsících --}}
+            @if($monthlySales->isNotEmpty())
+            <div class="px-6 py-4">
+                <div class="text-lg font-semibold text-slate-200 mb-4">📊 Statistika po měsících</div>
                 <div class="glass border border-slate-700 rounded-xl overflow-hidden">
                     <table class="w-full">
                         <thead class="bg-slate-800/50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Datum</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Čas</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Klient</th>
-                                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Cena</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Měsíc</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Služby</th>
                                 <th class="px-4 py-3 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Prodej domů</th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-300 uppercase tracking-wider">Akce</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Celkem</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-300 uppercase tracking-wider">Návštěv</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800">
-                            @foreach($visits as $visit)
+                            @foreach($monthlySales as $sale)
                                 <tr class="hover:bg-slate-800/30 transition">
-                                    <td class="px-4 py-3 text-sm text-slate-200">
-                                        {{ \Carbon\Carbon::parse($visit->occurred_at)->format('d.m.Y') }}
+                                    <td class="px-4 py-3 text-base font-semibold text-slate-200">
+                                        {{ \Carbon\Carbon::parse($sale->month . '-01')->locale('cs')->isoFormat('MMMM YYYY') }}
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-slate-300">
-                                        {{ \Carbon\Carbon::parse($visit->occurred_at)->format('H:i') }}
+                                    <td class="px-4 py-3 text-right text-base text-emerald-400 font-semibold">
+                                        {{ number_format($sale->total_services, 0, ',', ' ') }} Kč
                                     </td>
-                                    <td class="px-4 py-3">
-                                        <a href="{{ route('dashboard', ['section' => 'clients', 'client' => $visit->client_id]) }}" 
-                                           class="text-sm font-medium text-emerald-400 hover:text-emerald-300">
-                                            {{ $visit->client->name }}
-                                        </a>
+                                    <td class="px-4 py-3 text-right text-base text-sky-400 font-semibold">
+                                        {{ number_format($sale->total_retail ?? 0, 0, ',', ' ') }} Kč
                                     </td>
-                                    <td class="px-4 py-3 text-right">
-                                        <span class="text-lg font-semibold text-emerald-400">
-                                            {{ number_format($visit->total_price, 0, ',', ' ') }} Kč
-                                        </span>
+                                    <td class="px-4 py-3 text-right text-xl text-emerald-300 font-bold">
+                                        {{ number_format(($sale->total_services + ($sale->total_retail ?? 0)), 0, ',', ' ') }} Kč
                                     </td>
-                                    <td class="px-4 py-3 text-right">
-                                        @if($visit->retail_price)
-                                            <span class="text-sm font-medium text-sky-400">
-                                                {{ number_format($visit->retail_price, 0, ',', ' ') }} Kč
-                                            </span>
-                                        @else
-                                            <span class="text-sm text-slate-500">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <a href="{{ route('visits.show', ['visit' => $visit, 'from' => 'finance']) }}" 
-                                           class="inline-block px-3 py-1 rounded-lg bg-slate-700 text-slate-300 text-xs hover:bg-slate-600 transition">
-                                            Zobrazit
-                                        </a>
+                                    <td class="px-4 py-3 text-center text-base text-slate-300 font-medium">
+                                        {{ $sale->visit_count }}
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+            </div>
+            @endif
+
+            {{-- Seznam návštěv --}}
+            @if($visits->isNotEmpty())
+            <div class="px-6 pb-4" x-data="{ expandedMonths: {} }">
+                <div class="text-lg font-semibold text-slate-200 mb-4">📋 Detail návštěv</div>
+                <div class="space-y-4">
+                    @php
+                        $groupedVisits = $visits->groupBy(function($visit) {
+                            return \Carbon\Carbon::parse($visit->occurred_at)->format('Y-m');
+                        });
+                    @endphp
+                    
+                    @foreach($groupedVisits as $month => $monthVisits)
+                        <div class="glass border border-slate-700 rounded-xl overflow-hidden" x-data="{ expanded: {{ $loop->first ? 'true' : 'false' }} }">
+                            {{-- Nadpis měsíce - klikací --}}
+                            <button @click="expanded = !expanded" class="w-full bg-slate-800/70 px-4 py-3 border-b border-slate-700 flex items-center justify-between hover:bg-slate-800 transition">
+                                <h3 class="text-base font-bold text-emerald-400">
+                                    {{ \Carbon\Carbon::parse($month . '-01')->locale('cs')->isoFormat('MMMM YYYY') }}
+                                    <span class="text-sm text-slate-400 font-normal ml-2">({{ $monthVisits->count() }} návštěv)</span>
+                                </h3>
+                                <svg x-show="!expanded" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                                <svg x-show="expanded" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </button>
+                            
+                            {{-- Tabulka návštěv - rozbalovací --}}
+                            <div x-show="expanded" x-collapse>
+                            <table class="w-full">
+                                <thead class="bg-slate-800/50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Datum</th>
+                                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Čas</th>
+                                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Klient</th>
+                                        <th class="px-4 py-2 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Cena</th>
+                                        <th class="px-4 py-2 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Prodej domů</th>
+                                        <th class="px-4 py-2 text-center text-xs font-semibold text-slate-300 uppercase tracking-wider">Akce</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800">
+                                    @foreach($monthVisits as $visit)
+                                        <tr class="hover:bg-slate-800/30 transition">
+                                            <td class="px-4 py-2 text-sm text-slate-200">
+                                                {{ \Carbon\Carbon::parse($visit->occurred_at)->format('d.m.Y') }}
+                                            </td>
+                                            <td class="px-4 py-2 text-sm text-slate-300">
+                                                {{ \Carbon\Carbon::parse($visit->occurred_at)->format('H:i') }}
+                                            </td>
+                                            <td class="px-4 py-2">
+                                                <a href="{{ route('dashboard', ['section' => 'clients', 'client' => $visit->client_id]) }}" 
+                                                   class="text-sm font-medium text-emerald-400 hover:text-emerald-300">
+                                                    {{ $visit->client->name }}
+                                                </a>
+                                            </td>
+                                            <td class="px-4 py-2 text-right">
+                                                <span class="text-base font-semibold text-emerald-400">
+                                                    {{ number_format($visit->total_price, 0, ',', ' ') }} Kč
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-2 text-right">
+                                                @if($visit->retail_price)
+                                                    <span class="text-sm font-medium text-sky-400">
+                                                        {{ number_format($visit->retail_price, 0, ',', ' ') }} Kč
+                                                    </span>
+                                                @else
+                                                    <span class="text-sm text-slate-500">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-2 text-center">
+                                                <a href="{{ route('visits.show', ['visit' => $visit, 'from' => 'finance']) }}" 
+                                                   class="inline-block px-3 py-1 rounded-lg bg-slate-700 text-slate-300 text-xs hover:bg-slate-600 transition">
+                                                    Zobrazit
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
             @endif
         </div>
     </main>
