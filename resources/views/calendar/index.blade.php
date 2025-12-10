@@ -237,14 +237,36 @@
 
                         <div class="space-y-4">
                             <!-- Volba klienta -->
-                            <div>
+                            <div x-data="{ searchQuery: '', showDropdown: false }">
                                 <label class="block text-sm font-medium text-slate-300 mb-2">Vybrat klienta (volitelné)</label>
-                                <select name="client_id" @change="selectClient($event.target.value)" class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white">
-                                    <option value="">-- Nový klient --</option>
-                                    @foreach($clients as $client)
-                                    <option value="{{ $client->id }}" :selected="appointmentModal.appointment?.client_id == {{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }}</option>
-                                    @endforeach
-                                </select>
+                                <input type="hidden" name="client_id" x-ref="clientIdInput">
+                                <div class="relative">
+                                    <input type="text" 
+                                           x-model="searchQuery"
+                                           @focus="showDropdown = true"
+                                           @click.away="showDropdown = false"
+                                           placeholder="Začni psát jméno nebo vyber klienta..."
+                                           class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    
+                                    <div x-show="showDropdown && searchQuery.length > 0" 
+                                         class="absolute z-10 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg max-h-60 overflow-y-auto">
+                                        @foreach($clients as $client)
+                                        <div @click="
+                                                $refs.clientIdInput.value = '{{ $client->id }}';
+                                                searchQuery = '{{ $client->first_name }} {{ $client->last_name }}';
+                                                showDropdown = false;
+                                                selectClient('{{ $client->id }}');
+                                             "
+                                             x-show="'{{ strtolower($client->first_name . ' ' . $client->last_name) }}'.includes(searchQuery.toLowerCase())"
+                                             class="px-4 py-2 hover:bg-slate-700 cursor-pointer text-white">
+                                            {{ $client->first_name }} {{ $client->last_name }}
+                                            @if($client->phone)
+                                            <span class="text-slate-400 text-sm ml-2">{{ $client->phone }}</span>
+                                            @endif
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Jméno -->
