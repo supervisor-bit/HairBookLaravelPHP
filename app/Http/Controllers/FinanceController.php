@@ -37,7 +37,34 @@ class FinanceController extends Controller
         
         $visits = $query->get();
         $totalRevenue = $visits->sum('total_price');
+        $totalRetail = $visits->sum('retail_price');
+        $totalCombined = $totalRevenue + $totalRetail;
         
-        return view('finance.index', compact('visits', 'totalRevenue', 'period'));
+        // Statistika prodejů po měsících
+        $monthlySales = Visit::selectRaw('
+                DATE_FORMAT(occurred_at, "%Y-%m") as month,
+                SUM(total_price) as total_services,
+                SUM(retail_price) as total_retail,
+                COUNT(*) as visit_count
+            ')
+            ->whereNotNull('closed_at')
+            ->when($period !== 'all', function($q) use ($now, $period) {
+                switch ($period) {
+                    case 'today':
+                        return $q->whereDate('occurred_at', $now->toDateString());
+                    case 'week':
+                        return $q->whereBetween('occurred_at', [$now->startOfWeek(), $now->endOfWeek()]);
+                    case 'month':
+                        return $q->whereMonth('occurred_at', $now->month)
+                                 ->whereYear('occurred_at', $now->year);
+                    case 'year':
+                        return $q->whereYear('occurred_at', $now->year);
+                }
+            })
+            ->groupBy('month')
+            ->orderBy('month', 'desc')
+            ->get();
+        
+        return view('finance.index', compact('visits', 'totalRevenue', 'totalRetail', 'totalCombined', 'period', 'monthlySales'));
     }
 }

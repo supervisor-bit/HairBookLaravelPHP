@@ -117,24 +117,67 @@
 
         {{-- Stats --}}
         <div class="px-6 py-4 bg-slate-900/40 border-b border-slate-800">
-            <div class="grid grid-cols-3 gap-6">
+            <div class="grid grid-cols-4 gap-4">
                 <div class="glass border border-slate-700 rounded-xl p-4">
-                    <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Celkové příjmy</div>
-                    <div class="text-3xl font-bold text-emerald-400">{{ number_format($totalRevenue, 0, ',', ' ') }} Kč</div>
+                    <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Služby</div>
+                    <div class="text-2xl font-bold text-emerald-400">{{ number_format($totalRevenue, 0, ',', ' ') }} Kč</div>
                 </div>
                 <div class="glass border border-slate-700 rounded-xl p-4">
-                    <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Počet návštěv</div>
-                    <div class="text-3xl font-bold text-sky-400">{{ $visits->count() }}</div>
-                    <div class="text-xs text-slate-400 mt-1">{{ $visits->unique('client_id')->count() }} různých klientů</div>
+                    <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Prodej domů</div>
+                    <div class="text-2xl font-bold text-sky-400">{{ number_format($totalRetail, 0, ',', ' ') }} Kč</div>
+                </div>
+                <div class="glass border border-emerald-600 rounded-xl p-4 bg-emerald-500/10">
+                    <div class="text-xs uppercase tracking-wider text-emerald-400 mb-1">Celkem</div>
+                    <div class="text-2xl font-bold text-emerald-300">{{ number_format($totalCombined, 0, ',', ' ') }} Kč</div>
                 </div>
                 <div class="glass border border-slate-700 rounded-xl p-4">
-                    <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Průměr / návštěva</div>
-                    <div class="text-3xl font-bold text-purple-400">
-                        {{ $visits->count() > 0 ? number_format($totalRevenue / $visits->count(), 0, ',', ' ') : 0 }} Kč
-                    </div>
+                    <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Návštěvy</div>
+                    <div class="text-2xl font-bold text-purple-400">{{ $visits->count() }}</div>
+                    <div class="text-xs text-slate-400 mt-1">{{ $visits->unique('client_id')->count() }} klientů</div>
                 </div>
             </div>
         </div>
+
+        {{-- Statistika po měsících --}}
+        @if($monthlySales->isNotEmpty())
+        <div class="px-6 py-4 border-b border-slate-800">
+            <div class="text-sm font-semibold text-slate-200 mb-3">📊 Statistika po měsících</div>
+            <div class="glass border border-slate-700 rounded-xl overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-slate-800/50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Měsíc</th>
+                            <th class="px-4 py-2 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Služby</th>
+                            <th class="px-4 py-2 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Prodej domů</th>
+                            <th class="px-4 py-2 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Celkem</th>
+                            <th class="px-4 py-2 text-center text-xs font-semibold text-slate-300 uppercase tracking-wider">Návštěv</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800">
+                        @foreach($monthlySales as $sale)
+                            <tr class="hover:bg-slate-800/30 transition">
+                                <td class="px-4 py-2 text-sm font-medium text-slate-200">
+                                    {{ \Carbon\Carbon::parse($sale->month . '-01')->locale('cs')->isoFormat('MMMM YYYY') }}
+                                </td>
+                                <td class="px-4 py-2 text-right text-sm text-emerald-400 font-semibold">
+                                    {{ number_format($sale->total_services, 0, ',', ' ') }} Kč
+                                </td>
+                                <td class="px-4 py-2 text-right text-sm text-sky-400 font-semibold">
+                                    {{ number_format($sale->total_retail ?? 0, 0, ',', ' ') }} Kč
+                                </td>
+                                <td class="px-4 py-2 text-right text-lg text-emerald-300 font-bold">
+                                    {{ number_format(($sale->total_services + ($sale->total_retail ?? 0)), 0, ',', ' ') }} Kč
+                                </td>
+                                <td class="px-4 py-2 text-center text-sm text-slate-300">
+                                    {{ $sale->visit_count }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
 
         {{-- Seznam návštěv --}}
         <div class="flex-1 overflow-y-auto px-6 py-4">
