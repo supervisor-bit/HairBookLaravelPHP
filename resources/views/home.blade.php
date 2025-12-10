@@ -46,6 +46,13 @@
                     <div class="text-xs text-slate-400">Sklad ks + odpis v gramech</div>
                 </div>
             </a>
+            <a href="{{ route('calendar.index') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
+                <span class="h-2 w-2 rounded-full bg-indigo-400 shadow-[0_0_0_6px_rgba(129,140,248,0.15)]"></span>
+                <div>
+                    <div class="text-sm font-semibold">📅 Kalendář</div>
+                    <div class="text-xs text-slate-400">Denní rozvrh</div>
+                </div>
+            </a>
             <a href="{{ route('finance.index') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
                 <span class="h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_0_6px_rgba(251,191,36,0.15)]"></span>
                 <div>
