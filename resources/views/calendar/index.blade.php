@@ -28,12 +28,12 @@
 
 <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 border-r border-slate-800 glass flex flex-col">
+    <aside class="w-64 border-r border-slate-800 glass flex flex-col overflow-hidden">
         <div class="p-5">
             <div class="text-xs uppercase tracking-[0.3em] text-slate-400">HairBook</div>
             <div class="text-2xl font-semibold">Salon OS</div>
         </div>
-        <nav class="px-3 space-y-2">
+        <nav class="px-3 space-y-2 flex-1 overflow-y-auto">
             <a href="{{ route('home') }}"
                class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
                 <span class="h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_0_6px_rgba(192,132,252,0.15)]"></span>
