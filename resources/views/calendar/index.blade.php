@@ -85,6 +85,9 @@
                     🚪 Odhlásit
                 </button>
             </form>
+            <div class="text-xs text-slate-400 space-y-1">
+                <div>Stav: <span class="text-emerald-300">online</span></div>
+            </div>
         </div>
     </aside>
 
