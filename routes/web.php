@@ -12,6 +12,7 @@ use App\Http\Controllers\VisitController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routes (bez middleware)
@@ -28,6 +29,12 @@ Route::middleware(['check.app.password'])->group(function () {
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');
+    
+    // Calendar routes
+    Route::get('/calendar', [AppointmentController::class, 'index'])->name('calendar.index');
+    Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+    Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
+    Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
 Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
 Route::put('/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
