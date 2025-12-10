@@ -28,44 +28,64 @@
 
 <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 glass border-r border-slate-700/50 p-6 flex flex-col">
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-                HAIRBOOK
-            </h1>
-            <p class="text-xs text-slate-400 mt-1">Salon OS</p>
+    <aside class="w-64 border-r border-slate-800 glass flex flex-col">
+        <div class="p-5">
+            <div class="text-xs uppercase tracking-[0.3em] text-slate-400">HairBook</div>
+            <div class="text-2xl font-semibold">Salon OS</div>
         </div>
-
-        <nav class="flex-1 space-y-1">
-            <a href="{{ route('home') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-700/50 transition-colors">
-                <span>🏠</span>
-                <span>Domů</span>
+        <nav class="px-3 space-y-2">
+            <a href="{{ route('home') }}"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
+                <span class="h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_0_6px_rgba(192,132,252,0.15)]"></span>
+                <div>
+                    <div class="text-sm font-semibold">🏠 Domů</div>
+                    <div class="text-xs text-slate-400">Úvodní obrazovka</div>
+                </div>
             </a>
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-700/50 transition-colors">
-                <span>👥</span>
-                <span>Klienti</span>
+            <a href="{{ route('dashboard', ['section' => 'clients']) }}"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
+                <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(16,185,129,0.15)]"></span>
+                <div>
+                    <div class="text-sm font-semibold">Klienti</div>
+                    <div class="text-xs text-slate-400">Historie návštěv, uzávěrky</div>
+                </div>
             </a>
-            <a href="{{ route('calendar.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                <span>📅</span>
-                <span>Kalendář</span>
+            <a href="{{ route('dashboard', ['section' => 'products']) }}"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
+                <span class="h-2 w-2 rounded-full bg-sky-400 shadow-[0_0_0_6px_rgba(56,189,248,0.15)]"></span>
+                <div>
+                    <div class="text-sm font-semibold">Produkty</div>
+                    <div class="text-xs text-slate-400">Sklad ks + odpis v gramech</div>
+                </div>
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-700/50 transition-colors">
-                <span>📦</span>
-                <span>Produkty</span>
+            <a href="{{ route('calendar.index') }}"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl transition bg-slate-800 text-white">
+                <span class="h-2 w-2 rounded-full bg-indigo-400 shadow-[0_0_0_6px_rgba(129,140,248,0.15)]"></span>
+                <div>
+                    <div class="text-sm font-semibold">📅 Kalendář</div>
+                    <div class="text-xs text-slate-400">Denní rozvrh</div>
+                </div>
             </a>
-            <a href="{{ route('finance.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-700/50 transition-colors">
-                <span>💰</span>
-                <span>Finance</span>
+            <a href="{{ route('finance.index') }}"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
+                <span class="h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_0_6px_rgba(251,191,36,0.15)]"></span>
+                <div>
+                    <div class="text-sm font-semibold">💰 Finance</div>
+                    <div class="text-xs text-slate-400">Přehled příjmů</div>
+                </div>
             </a>
         </nav>
-
-        <form action="{{ route('auth.logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors border border-red-500/20">
-                <span>🚪</span>
-                <span>Odhlásit</span>
-            </button>
-        </form>
+        <div class="mt-auto p-4 space-y-2">
+            <a href="{{ route('settings.index') }}" class="block w-full px-3 py-2 rounded-lg bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 transition-colors text-center">
+                ⚙️ Nastavení
+            </a>
+            <form method="POST" action="{{ route('auth.logout') }}">
+                @csrf
+                <button type="submit" class="w-full px-3 py-2 rounded-lg bg-red-500/10 text-red-400 text-sm hover:bg-red-500/20 transition-colors">
+                    🚪 Odhlásit
+                </button>
+            </form>
+        </div>
     </aside>
 
     <!-- Main Content -->
