@@ -184,17 +184,19 @@
                          @click="openAppointmentModal(null, '{{ sprintf('%02d:00', $hour) }}', 1)">
                         @foreach($lane1 as $appointment)
                             @php
-                                $startHour = (int)substr($appointment->start_time, 0, 2);
-                                $startMin = (int)substr($appointment->start_time, 3, 2);
-                                $endHour = (int)substr($appointment->end_time, 0, 2);
-                                $endMin = (int)substr($appointment->end_time, 3, 2);
+                                $startTime = substr($appointment->start_time, 11, 5); // HH:MM z datetime
+                                $endTime = substr($appointment->end_time, 11, 5);
+                                $startHour = (int)substr($startTime, 0, 2);
+                                $startMin = (int)substr($startTime, 3, 2);
+                                $endHour = (int)substr($endTime, 0, 2);
+                                $endMin = (int)substr($endTime, 3, 2);
                             @endphp
                             @if($startHour == $hour)
                             <div class="absolute top-2 left-2 right-2 bg-emerald-500/20 border border-emerald-500/50 rounded-lg p-3 cursor-pointer hover:bg-emerald-500/30 transition-colors"
                                  style="height: {{ (($endHour - $startHour) * 80 + (($endMin - $startMin) / 60) * 80) - 8 }}px"
                                  @click.stop="openAppointmentModal({{ json_encode($appointment) }})">
                                 <div class="text-sm font-medium text-white">{{ $appointment->first_name }} {{ $appointment->last_name }}</div>
-                                <div class="text-xs text-emerald-300 mt-1">{{ substr($appointment->start_time, 0, 5) }} - {{ substr($appointment->end_time, 0, 5) }}</div>
+                                <div class="text-xs text-emerald-300 mt-1">{{ $startTime }} - {{ $endTime }}</div>
                                 @if($appointment->notes)
                                 <div class="text-xs text-slate-300 mt-1 line-clamp-2">{{ $appointment->notes }}</div>
                                 @endif
@@ -208,17 +210,19 @@
                          @click="openAppointmentModal(null, '{{ sprintf('%02d:00', $hour) }}', 2)">
                         @foreach($lane2 as $appointment)
                             @php
-                                $startHour = (int)substr($appointment->start_time, 0, 2);
-                                $startMin = (int)substr($appointment->start_time, 3, 2);
-                                $endHour = (int)substr($appointment->end_time, 0, 2);
-                                $endMin = (int)substr($appointment->end_time, 3, 2);
+                                $startTime = substr($appointment->start_time, 11, 5); // HH:MM z datetime
+                                $endTime = substr($appointment->end_time, 11, 5);
+                                $startHour = (int)substr($startTime, 0, 2);
+                                $startMin = (int)substr($startTime, 3, 2);
+                                $endHour = (int)substr($endTime, 0, 2);
+                                $endMin = (int)substr($endTime, 3, 2);
                             @endphp
                             @if($startHour == $hour)
                             <div class="absolute top-2 left-2 right-2 bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 cursor-pointer hover:bg-blue-500/30 transition-colors"
                                  style="height: {{ (($endHour - $startHour) * 80 + (($endMin - $startMin) / 60) * 80) - 8 }}px"
                                  @click.stop="openAppointmentModal({{ json_encode($appointment) }})">
                                 <div class="text-sm font-medium text-white">{{ $appointment->first_name }} {{ $appointment->last_name }}</div>
-                                <div class="text-xs text-blue-300 mt-1">{{ substr($appointment->start_time, 0, 5) }} - {{ substr($appointment->end_time, 0, 5) }}</div>
+                                <div class="text-xs text-blue-300 mt-1">{{ $startTime }} - {{ $endTime }}</div>
                                 @if($appointment->notes)
                                 <div class="text-xs text-slate-300 mt-1 line-clamp-2">{{ $appointment->notes }}</div>
                                 @endif
