@@ -109,7 +109,16 @@
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ url('/appointments') }}/' + this.appointmentModal.appointment.id;
-                form.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+                const token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '_token';
+                token.value = '{{ csrf_token() }}';
+                const method = document.createElement('input');
+                method.type = 'hidden';
+                method.name = '_method';
+                method.value = 'DELETE';
+                form.appendChild(token);
+                form.appendChild(method);
                 document.body.appendChild(form);
                 form.submit();
             }
