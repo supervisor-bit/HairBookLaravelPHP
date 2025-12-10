@@ -20,13 +20,9 @@ class AppointmentController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        // Rozdělit události do 2 kolejí
-        $lane1 = $appointments->where('lane', 1);
-        $lane2 = $appointments->where('lane', 2);
-
         $clients = Client::orderBy('last_name')->get();
 
-        return view('calendar.index', compact('appointments', 'lane1', 'lane2', 'selectedDate', 'clients'));
+        return view('calendar.index', compact('appointments', 'selectedDate', 'clients'));
     }
 
     public function store(Request $request)
@@ -40,7 +36,6 @@ class AppointmentController extends Controller
             'end_time' => 'nullable',
             'duration' => 'nullable|integer',
             'notes' => 'nullable|string',
-            'lane' => 'required|integer|in:1,2',
             'repeat_weeks' => 'nullable|integer|min:0',
         ]);
 
@@ -67,7 +62,6 @@ class AppointmentController extends Controller
             'end_time' => 'nullable',
             'duration' => 'nullable|integer',
             'notes' => 'nullable|string',
-            'lane' => 'required|integer|in:1,2',
             'status' => 'required|in:scheduled,completed,cancelled',
         ]);
 

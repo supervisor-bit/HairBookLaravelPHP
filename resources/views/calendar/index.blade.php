@@ -93,12 +93,11 @@
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-y-auto h-screen" x-data="{
-        appointmentModal: { show: false, appointment: null, defaultTime: null, defaultLane: null },
+        appointmentModal: { show: false, appointment: null, defaultTime: null },
         selectedDate: '{{ $selectedDate->format('Y-m-d') }}',
-        openAppointmentModal(appointment = null, time = null, lane = null) {
+        openAppointmentModal(appointment = null, time = null) {
             this.appointmentModal.appointment = appointment;
             this.appointmentModal.defaultTime = time;
-            this.appointmentModal.defaultLane = lane;
             this.appointmentModal.show = true;
         },
         changeDate(direction) {
@@ -154,17 +153,14 @@
                 </div>
             </div>
 
-            <!-- Calendar Grid (2 lanes) -->
+            <!-- Calendar Grid -->
             <div class="glass rounded-xl border border-slate-700/50 overflow-hidden">
-                <div class="grid grid-cols-[80px_1fr_1fr] border-b border-slate-700/50">
+                <div class="grid grid-cols-[80px_1fr] border-b border-slate-700/50">
                     <div class="p-4 bg-slate-800/50 border-r border-slate-700/50">
                         <span class="text-sm font-medium text-slate-400">Čas</span>
                     </div>
-                    <div class="p-4 bg-slate-800/50 border-r border-slate-700/50">
-                        <span class="text-sm font-medium text-emerald-400">Místo 1</span>
-                    </div>
                     <div class="p-4 bg-slate-800/50">
-                        <span class="text-sm font-medium text-blue-400">Místo 2</span>
+                        <span class="text-sm font-medium text-emerald-400">Rezervace</span>
                     </div>
                 </div>
 
@@ -174,15 +170,15 @@
                 @endphp
 
                 @foreach($hours as $hour)
-                <div class="grid grid-cols-[80px_1fr_1fr] border-b border-slate-700/50 min-h-[80px]">
+                <div class="grid grid-cols-[80px_1fr] border-b border-slate-700/50 min-h-[80px]">
                     <div class="p-4 bg-slate-800/30 border-r border-slate-700/50">
                         <span class="text-sm text-slate-400">{{ sprintf('%02d:00', $hour) }}</span>
                     </div>
                     
-                    <!-- Lane 1 -->
-                    <div class="p-2 border-r border-slate-700/50 relative bg-slate-800/10 hover:bg-slate-700/20 transition-colors cursor-pointer" 
-                         @click="openAppointmentModal(null, '{{ sprintf('%02d:00', $hour) }}', 1)">
-                        @foreach($lane1 as $appointment)
+                    <!-- Appointments -->
+                    <div class="p-2 relative bg-slate-800/10 hover:bg-slate-700/20 transition-colors cursor-pointer" 
+                         @click="openAppointmentModal(null, '{{ sprintf('%02d:00', $hour) }}')">
+                        @foreach($appointments as $appointment)
                             @php
                                 $startTime = substr($appointment->start_time, 11, 5); // HH:MM z datetime
                                 $endTime = substr($appointment->end_time, 11, 5);
@@ -197,32 +193,6 @@
                                  @click.stop="openAppointmentModal({{ json_encode($appointment) }})">
                                 <div class="text-sm font-medium text-white">{{ $appointment->first_name }} {{ $appointment->last_name }}</div>
                                 <div class="text-xs text-emerald-300 mt-1">{{ $startTime }} - {{ $endTime }}</div>
-                                @if($appointment->notes)
-                                <div class="text-xs text-slate-300 mt-1 line-clamp-2">{{ $appointment->notes }}</div>
-                                @endif
-                            </div>
-                            @endif
-                        @endforeach
-                    </div>
-                    
-                    <!-- Lane 2 -->
-                    <div class="p-2 relative bg-slate-800/10 hover:bg-slate-700/20 transition-colors cursor-pointer"
-                         @click="openAppointmentModal(null, '{{ sprintf('%02d:00', $hour) }}', 2)">
-                        @foreach($lane2 as $appointment)
-                            @php
-                                $startTime = substr($appointment->start_time, 11, 5); // HH:MM z datetime
-                                $endTime = substr($appointment->end_time, 11, 5);
-                                $startHour = (int)substr($startTime, 0, 2);
-                                $startMin = (int)substr($startTime, 3, 2);
-                                $endHour = (int)substr($endTime, 0, 2);
-                                $endMin = (int)substr($endTime, 3, 2);
-                            @endphp
-                            @if($startHour == $hour)
-                            <div class="absolute top-2 left-2 right-2 bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 cursor-pointer hover:bg-blue-500/30 transition-colors"
-                                 style="height: {{ (($endHour - $startHour) * 80 + (($endMin - $startMin) / 60) * 80) - 8 }}px"
-                                 @click.stop="openAppointmentModal({{ json_encode($appointment) }})">
-                                <div class="text-sm font-medium text-white">{{ $appointment->first_name }} {{ $appointment->last_name }}</div>
-                                <div class="text-xs text-blue-300 mt-1">{{ $startTime }} - {{ $endTime }}</div>
                                 @if($appointment->notes)
                                 <div class="text-xs text-slate-300 mt-1 line-clamp-2">{{ $appointment->notes }}</div>
                                 @endif
@@ -298,15 +268,6 @@
                                            x-init="$el.value = appointmentModal.appointment?.end_time ? appointmentModal.appointment.end_time.substring(0, 5) : ''"
                                            class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 </div>
-                            </div>
-
-                            <!-- Pracovní místo -->
-                            <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-2">Pracovní místo *</label>
-                                <select name="lane" required class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white">
-                                    <option value="1" :selected="appointmentModal.appointment ? appointmentModal.appointment.lane == 1 : (appointmentModal.defaultLane == 1 || appointmentModal.defaultLane == null)">Místo 1</option>
-                                    <option value="2" :selected="appointmentModal.appointment ? appointmentModal.appointment.lane == 2 : (appointmentModal.defaultLane == 2)">Místo 2</option>
-                                </select>
                             </div>
 
                             <!-- Poznámky -->
