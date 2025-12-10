@@ -93,10 +93,12 @@
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-y-auto h-screen" x-data="{
-        appointmentModal: { show: false, appointment: null },
+        appointmentModal: { show: false, appointment: null, defaultTime: null, defaultLane: null },
         selectedDate: '{{ $selectedDate->format('Y-m-d') }}',
-        openAppointmentModal(appointment = null) {
+        openAppointmentModal(appointment = null, time = null, lane = null) {
             this.appointmentModal.appointment = appointment;
+            this.appointmentModal.defaultTime = time;
+            this.appointmentModal.defaultLane = lane;
             this.appointmentModal.show = true;
         },
         changeDate(direction) {
@@ -179,7 +181,7 @@
                     
                     <!-- Lane 1 -->
                     <div class="p-2 border-r border-slate-700/50 relative bg-slate-800/10 hover:bg-slate-700/20 transition-colors cursor-pointer" 
-                         @click="openAppointmentModal()">
+                         @click="openAppointmentModal(null, '{{ sprintf('%02d:00', $hour) }}', 1)">
                         @foreach($lane1 as $appointment)
                             @php
                                 $startHour = (int)substr($appointment->start_time, 0, 2);
@@ -203,7 +205,7 @@
                     
                     <!-- Lane 2 -->
                     <div class="p-2 relative bg-slate-800/10 hover:bg-slate-700/20 transition-colors cursor-pointer"
-                         @click="openAppointmentModal()">
+                         @click="openAppointmentModal(null, '{{ sprintf('%02d:00', $hour) }}', 2)">
                         @foreach($lane2 as $appointment)
                             @php
                                 $startHour = (int)substr($appointment->start_time, 0, 2);
@@ -283,7 +285,7 @@
                                 <div>
                                     <label class="block text-sm font-medium text-slate-300 mb-2">Čas od *</label>
                                     <input type="time" name="start_time" required 
-                                           :value="appointmentModal.appointment?.start_time ? appointmentModal.appointment.start_time.substring(0, 5) : ''"
+                                           :value="appointmentModal.appointment?.start_time ? appointmentModal.appointment.start_time.substring(0, 5) : (appointmentModal.defaultTime || '')"
                                            class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 </div>
                                 <div>
@@ -298,8 +300,8 @@
                             <div>
                                 <label class="block text-sm font-medium text-slate-300 mb-2">Pracovní místo *</label>
                                 <select name="lane" required class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white">
-                                    <option value="1" :selected="!appointmentModal.appointment || appointmentModal.appointment.lane == 1">Místo 1</option>
-                                    <option value="2" :selected="appointmentModal.appointment?.lane == 2">Místo 2</option>
+                                    <option value="1" :selected="appointmentModal.appointment ? appointmentModal.appointment.lane == 1 : (appointmentModal.defaultLane == 1 || appointmentModal.defaultLane == null)">Místo 1</option>
+                                    <option value="2" :selected="appointmentModal.appointment ? appointmentModal.appointment.lane == 2 : (appointmentModal.defaultLane == 2)">Místo 2</option>
                                 </select>
                             </div>
 
