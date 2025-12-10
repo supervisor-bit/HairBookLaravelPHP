@@ -96,26 +96,42 @@
         appointmentModal: { show: false, appointment: null, defaultTime: null },
         selectedDate: '{{ $selectedDate->format('Y-m-d') }}',
         selectedClient: null,
+        searchQuery: '',
+        showDropdown: false,
         clients: {{ json_encode($clients) }},
         openAppointmentModal(appointment = null, time = null) {
             this.appointmentModal.appointment = appointment;
             this.appointmentModal.defaultTime = time;
             this.selectedClient = null;
+            this.searchQuery = '';
+            this.showDropdown = false;
             this.appointmentModal.show = true;
         },
         selectClient(clientId) {
             const client = this.clients.find(c => c.id == clientId);
             if(client) {
                 this.selectedClient = client;
+                this.searchQuery = client.first_name + ' ' + client.last_name;
+                this.showDropdown = false;
+                document.querySelector('input[name=client_id]').value = client.id;
                 document.querySelector('input[name=first_name]').value = client.first_name;
                 document.querySelector('input[name=last_name]').value = client.last_name;
                 document.querySelector('input[name=phone]').value = client.phone || '';
             } else {
                 this.selectedClient = null;
+                this.searchQuery = '';
+                document.querySelector('input[name=client_id]').value = '';
                 document.querySelector('input[name=first_name]').value = '';
                 document.querySelector('input[name=last_name]').value = '';
                 document.querySelector('input[name=phone]').value = '';
             }
+        },
+        filterClients(query) {
+            if(!query || query.length === 0) return [];
+            const lowerQuery = query.toLowerCase();
+            return this.clients.filter(c => 
+                (c.first_name + ' ' + c.last_name).toLowerCase().includes(lowerQuery)
+            );
         },
         changeDate(direction) {
             const date = new Date(this.selectedDate);
@@ -237,34 +253,30 @@
 
                         <div class="space-y-4">
                             <!-- Volba klienta -->
-                            <div x-data="{ searchQuery: '', showDropdown: false }">
+                            <div>
                                 <label class="block text-sm font-medium text-slate-300 mb-2">Vybrat klienta (volitelné)</label>
-                                <input type="hidden" name="client_id" x-ref="clientIdInput">
+                                <input type="hidden" name="client_id">
                                 <div class="relative">
                                     <input type="text" 
                                            x-model="searchQuery"
                                            @focus="showDropdown = true"
                                            @click.away="showDropdown = false"
+                                           @input="showDropdown = true"
                                            placeholder="Začni psát jméno nebo vyber klienta..."
                                            class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                     
                                     <div x-show="showDropdown && searchQuery.length > 0" 
-                                         class="absolute z-10 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg max-h-60 overflow-y-auto">
-                                        @foreach($clients as $client)
-                                        <div @click="
-                                                $refs.clientIdInput.value = '{{ $client->id }}';
-                                                searchQuery = '{{ $client->first_name }} {{ $client->last_name }}';
-                                                showDropdown = false;
-                                                selectClient('{{ $client->id }}');
-                                             "
-                                             x-show="'{{ strtolower($client->first_name . ' ' . $client->last_name) }}'.includes(searchQuery.toLowerCase())"
-                                             class="px-4 py-2 hover:bg-slate-700 cursor-pointer text-white">
-                                            {{ $client->first_name }} {{ $client->last_name }}
-                                            @if($client->phone)
-                                            <span class="text-slate-400 text-sm ml-2">{{ $client->phone }}</span>
-                                            @endif
+                                         class="absolute z-10 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg max-h-60 overflow-y-auto shadow-xl">
+                                        <template x-for="client in filterClients(searchQuery)" :key="client.id">
+                                            <div @click="selectClient(client.id)"
+                                                 class="px-4 py-2 hover:bg-slate-700 cursor-pointer text-white">
+                                                <span x-text="client.first_name + ' ' + client.last_name"></span>
+                                                <span x-show="client.phone" x-text="client.phone" class="text-slate-400 text-sm ml-2"></span>
+                                            </div>
+                                        </template>
+                                        <div x-show="filterClients(searchQuery).length === 0" class="px-4 py-2 text-slate-400 text-sm">
+                                            Žádný klient nenalezen
                                         </div>
-                                        @endforeach
                                     </div>
                                 </div>
                             </div>
