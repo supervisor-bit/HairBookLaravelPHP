@@ -103,6 +103,16 @@
             const date = new Date(this.selectedDate);
             date.setDate(date.getDate() + direction);
             window.location.href = '{{ route('calendar.index') }}?date=' + date.toISOString().split('T')[0];
+        },
+        deleteAppointment() {
+            if(confirm('Opravdu smazat tuto rezervaci?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ url('/appointments') }}/' + this.appointmentModal.appointment.id;
+                form.innerHTML = '@csrf @method(\'DELETE\')';
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     }">
         <div class="max-w-7xl mx-auto">
@@ -325,14 +335,7 @@
                             </button>
                             <template x-if="appointmentModal.appointment">
                                 <button type="button" 
-                                        @click="if(confirm(&quot;Opravdu smazat tuto rezervaci?&quot;)) { 
-                                            const form = document.createElement(&quot;form&quot;); 
-                                            form.method = &quot;POST&quot;; 
-                                            form.action = &quot;{{ url('/appointments') }}/&quot; + appointmentModal.appointment.id;
-                                            form.innerHTML = &quot;@csrf @method(&quot;DELETE&quot;)&quot;;
-                                            document.body.appendChild(form);
-                                            form.submit();
-                                        }"
+                                        x-on:click="deleteAppointment"
                                         class="px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors">
                                     Smazat
                                 </button>
