@@ -95,10 +95,27 @@
     <main class="flex-1 p-8 overflow-y-auto h-screen" x-data="{
         appointmentModal: { show: false, appointment: null, defaultTime: null },
         selectedDate: '{{ $selectedDate->format('Y-m-d') }}',
+        selectedClient: null,
+        clients: {{ json_encode($clients) }},
         openAppointmentModal(appointment = null, time = null) {
             this.appointmentModal.appointment = appointment;
             this.appointmentModal.defaultTime = time;
+            this.selectedClient = null;
             this.appointmentModal.show = true;
+        },
+        selectClient(clientId) {
+            const client = this.clients.find(c => c.id == clientId);
+            if(client) {
+                this.selectedClient = client;
+                document.querySelector('input[name=first_name]').value = client.first_name;
+                document.querySelector('input[name=last_name]').value = client.last_name;
+                document.querySelector('input[name=phone]').value = client.phone || '';
+            } else {
+                this.selectedClient = null;
+                document.querySelector('input[name=first_name]').value = '';
+                document.querySelector('input[name=last_name]').value = '';
+                document.querySelector('input[name=phone]').value = '';
+            }
         },
         changeDate(direction) {
             const date = new Date(this.selectedDate);
@@ -222,10 +239,10 @@
                             <!-- Volba klienta -->
                             <div>
                                 <label class="block text-sm font-medium text-slate-300 mb-2">Vybrat klienta (volitelné)</label>
-                                <select name="client_id" class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white">
+                                <select name="client_id" @change="selectClient($event.target.value)" class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white">
                                     <option value="">-- Nový klient --</option>
                                     @foreach($clients as $client)
-                                    <option value="{{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }}</option>
+                                    <option value="{{ $client->id }}" :selected="appointmentModal.appointment?.client_id == {{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -243,6 +260,14 @@
                                 <label class="block text-sm font-medium text-slate-300 mb-2">Příjmení *</label>
                                 <input type="text" name="last_name" required 
                                        :value="appointmentModal.appointment?.last_name || ''"
+                                       class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+
+                            <!-- Telefon -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Telefon</label>
+                                <input type="tel" name="phone" 
+                                       :value="appointmentModal.appointment?.phone || ''"
                                        class="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                             </div>
 
