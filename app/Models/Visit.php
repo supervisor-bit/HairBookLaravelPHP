@@ -16,6 +16,7 @@ class Visit extends Model
         'occurred_at',
         'status',
         'total_price',
+        'retail_price',
         'note',
         'closed_at',
     ];
@@ -24,6 +25,7 @@ class Visit extends Model
         'occurred_at' => 'datetime',
         'closed_at' => 'datetime',
         'total_price' => 'float',
+        'retail_price' => 'float',
     ];
 
     public function client(): BelongsTo

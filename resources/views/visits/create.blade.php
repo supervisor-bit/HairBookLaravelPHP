@@ -170,6 +170,11 @@
                     <input type="number" step="0.01" x-model="totalPrice" placeholder="0" x-ref="totalPriceInput"
                            class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none">
                 </label>
+                <label x-show="retail.some(r => r.product_id)" class="text-sm text-slate-300 space-y-1">
+                    <span>Cena za prodej domů (volitelné)</span>
+                    <input type="number" step="0.01" x-model="retailPrice" placeholder="0"
+                           class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none">
+                </label>
                 <label class="text-sm text-slate-300 space-y-1">
                     <span>Poznámka k návštěvě</span>
                     <input type="text" x-model="note" placeholder="Krátký popis návštěvy" 
@@ -833,9 +838,17 @@
                         </template>
                     </div>
                     
-                    <div class="border-t border-gray-300 pt-3 text-right">
-                        <div class="text-xl font-bold text-gray-900">
-                            Celkem: <span x-text="Number(receiptData.totalPrice).toFixed(0)"></span> Kč
+                    <div class="border-t border-gray-300 pt-3 text-right space-y-1">
+                        <template x-if="receiptData.retailPrice > 0">
+                            <div class="text-base text-gray-700">
+                                Celkem za produkty: <span x-text="Number(receiptData.retailPrice).toFixed(2)"></span> Kč
+                            </div>
+                        </template>
+                        <div class="text-base text-gray-700">
+                            Celkem za návštěvu: <span x-text="Number(receiptData.totalPrice).toFixed(2)"></span> Kč
+                        </div>
+                        <div class="text-xl font-bold text-gray-900 border-t border-gray-400 pt-2 mt-2">
+                            CELKEM ZA OBOJÍ: <span x-text="(Number(receiptData.totalPrice) + Number(receiptData.retailPrice || 0)).toFixed(2)"></span> Kč
                         </div>
                     </div>
                     
@@ -868,6 +881,7 @@
                 // Form fields
                 occurredAt: '{{ now()->format('Y-m-d\TH:i') }}',
                 totalPrice: '',
+                retailPrice: '',
                 note: '',
                 closeNow: false,
                 
@@ -935,7 +949,8 @@
                     time: '',
                     services: [],
                     retail: [],
-                    totalPrice: 0
+                    totalPrice: 0,
+                    retailPrice: 0
                 },
                 
                 // Loading state
@@ -1597,6 +1612,7 @@
                     this.receiptData.services = servicesData;
                     this.receiptData.retail = retailData;
                     this.receiptData.totalPrice = this.totalPrice || 0;
+                    this.receiptData.retailPrice = this.retailPrice || 0;
                 },
                 
                 async submitVisit() {
@@ -1608,6 +1624,7 @@
                         client_id: {{ $client->id }},
                         occurred_at: this.occurredAt,
                         total_price: this.totalPrice || 0,
+                        retail_price: this.retailPrice || null,
                         note: this.note,
                         close_now: this.closeNow ? 1 : 0,
                         services: this.services.map(s => ({

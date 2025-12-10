@@ -17,6 +17,7 @@ return new class extends Migration
             $table->dateTime('occurred_at')->nullable()->index();
             $table->enum('status', ['draft', 'closed'])->default('draft');
             $table->decimal('total_price', 10, 2)->default(0);
+            $table->decimal('retail_price', 10, 2)->nullable();
             $table->text('note')->nullable();
             $table->timestamp('closed_at')->nullable();
             $table->timestamps();

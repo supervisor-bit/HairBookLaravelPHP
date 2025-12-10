@@ -155,6 +155,7 @@
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Čas</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Klient</th>
                                 <th class="px-4 py-3 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Cena</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Prodej domů</th>
                                 <th class="px-4 py-3 text-center text-xs font-semibold text-slate-300 uppercase tracking-wider">Akce</th>
                             </tr>
                         </thead>
@@ -178,8 +179,17 @@
                                             {{ number_format($visit->total_price, 0, ',', ' ') }} Kč
                                         </span>
                                     </td>
+                                    <td class="px-4 py-3 text-right">
+                                        @if($visit->retail_price)
+                                            <span class="text-sm font-medium text-sky-400">
+                                                {{ number_format($visit->retail_price, 0, ',', ' ') }} Kč
+                                            </span>
+                                        @else
+                                            <span class="text-sm text-slate-500">-</span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-center">
-                                        <a href="{{ route('visits.show', $visit) }}" 
+                                        <a href="{{ route('visits.show', ['visit' => $visit, 'from' => 'finance']) }}" 
                                            class="inline-block px-3 py-1 rounded-lg bg-slate-700 text-slate-300 text-xs hover:bg-slate-600 transition">
                                             Zobrazit
                                         </a>

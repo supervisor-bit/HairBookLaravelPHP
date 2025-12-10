@@ -115,7 +115,9 @@
     </template>
 </div>
 
-<div id="main-app" class="relative h-full flex" x-data="{
+<div id="main-app" class="relative h-full flex" 
+     @open-close-modal.window="openCloseModal($event.detail)"
+     x-data="{
         toasts: [],
         toastId: 0,
         loading: false,
@@ -160,7 +162,20 @@
             time: '',
             services: [],
             retail: [],
-            totalPrice: 0
+            totalPrice: 0,
+            retailPrice: 0
+        },
+        closeVisitModal: {
+            show: false,
+            visit: null
+        },
+        openCloseModal(visit) {
+            this.closeVisitModal.visit = visit;
+            this.closeVisitModal.show = true;
+        },
+        closeCloseModal() {
+            this.closeVisitModal.show = false;
+            this.closeVisitModal.visit = null;
         },
             getInitials(name) {
                 if (!name) return '?';
@@ -592,6 +607,7 @@
                                                 'occurred_at' => $visit->occurred_at?->format('d.m.Y H:i') ?? 'Bez data',
                                                 'occurred_at_raw' => $visit->occurred_at?->format('Y-m-d H:i:s'),
                                                 'total_price' => $visit->total_price,
+                                                'retail_price' => $visit->retail_price,
                                                 'status' => $visit->status,
                                                 'note' => $visit->note,
                                                 'services' => $visit->services->map(function($s) {
@@ -656,10 +672,17 @@
                                         </template>
                                         
                                         <template x-for="visit in filteredVisits" :key="visit.id">
-                                            <div class="border border-slate-800 rounded-xl p-4 bg-slate-900/40 space-y-2">
+                                            <div class="border rounded-xl p-4 space-y-2 transition-all duration-1000"
+                                                 :class="visit.id === {{ session('newVisitId') ?? 0 }} ? 'border-emerald-400 bg-emerald-500/10 animate-pulse' : 'border-slate-800 bg-slate-900/40'">
                                                 <div class="flex items-center justify-between">
-                                                    <div class="text-lg font-semibold" x-text="visit.occurred_at"></div>
+                                                    <div class="text-lg font-semibold flex items-center gap-2">
+                                                        <span x-text="visit.occurred_at"></span>
+                                                        <span x-show="visit.id === {{ session('newVisitId') ?? 0 }}" class="text-xs px-2 py-0.5 rounded-full bg-emerald-500 text-white font-bold">NOVÁ</span>
+                                                    </div>
                                                     <div class="flex items-center gap-2">
+                                                        <a :href="'/visits/' + visit.id" class="px-3 py-1 rounded-lg bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs hover:bg-purple-500/30">
+                                                            📄 Detail
+                                                        </a>
                                                         <button type="button" @click="printVisitReceipt(visit)" class="px-3 py-1 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-300 text-xs hover:bg-sky-500/30">
                                                             🖨️ Účtenka
                                                         </button>
@@ -672,7 +695,12 @@
                                                         <span class="text-xs px-2 py-1 rounded-full"
                                                               :class="visit.status === 'closed' ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'"
                                                               x-text="getStatusText(visit.status)"></span>
-                                                        <span class="text-sm text-slate-200 font-semibold" x-text="Number(visit.total_price).toFixed(2) + ' Kč'"></span>
+                                                        <div class="flex flex-col items-end gap-0.5">
+                                                            <span class="text-sm text-slate-200 font-semibold" x-text="Number(visit.total_price).toFixed(2) + ' Kč'"></span>
+                                                            <template x-if="visit.retail_price">
+                                                                <span class="text-xs text-sky-400" x-text="'Domů: ' + Number(visit.retail_price).toFixed(2) + ' Kč'"></span>
+                                                            </template>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div x-show="visit.note" class="text-sm text-slate-300" x-text="visit.note"></div>
@@ -702,10 +730,11 @@
                                                     </template>
                                                 </div>
 
-                                                <form x-show="visit.status === 'draft'" method="POST" :action="visit.close_url" class="pt-2">
-                                                    @csrf
-                                                    <button class="px-3 py-2 rounded-lg bg-sky-500 text-slate-950 text-sm font-semibold hover:bg-sky-400">Uzavřít a odepsat sklad</button>
-                                                </form>
+                                                <div x-show="visit.status === 'draft'" class="pt-2">
+                                                    <button @click="$dispatch('open-close-modal', visit)" class="px-3 py-2 rounded-lg bg-sky-500 text-slate-950 text-sm font-semibold hover:bg-sky-400">
+                                                        🔒 Uzavřít a odepsat sklad
+                                                    </button>
+                                                </div>
                                             </div>
                                         </template>
                                     </div>
@@ -1295,9 +1324,17 @@
                     </template>
                 </div>
                 
-                <div class="border-t border-gray-300 pt-3 text-right">
-                    <div class="text-xl font-bold text-gray-900">
-                        Celkem: <span x-text="Number(receiptData.totalPrice).toFixed(0)"></span> Kč
+                <div class="border-t border-gray-300 pt-3 text-right space-y-1">
+                    <template x-if="receiptData.retailPrice > 0">
+                        <div class="text-base text-gray-700">
+                            Celkem za produkty: <span x-text="Number(receiptData.retailPrice).toFixed(2)"></span> Kč
+                        </div>
+                    </template>
+                    <div class="text-base text-gray-700">
+                        Celkem za návštěvu: <span x-text="Number(receiptData.totalPrice).toFixed(2)"></span> Kč
+                    </div>
+                    <div class="text-xl font-bold text-gray-900 border-t border-gray-400 pt-2 mt-2">
+                        CELKEM ZA OBOJÍ: <span x-text="(Number(receiptData.totalPrice) + Number(receiptData.retailPrice || 0)).toFixed(2)"></span> Kč
                     </div>
                 </div>
                 
@@ -1316,6 +1353,76 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal pro uzavření návštěvy --}}
+    <template x-if="closeVisitModal.show">
+        <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+             @click.self="closeCloseModal()"
+             @keydown.escape.window="closeCloseModal()">
+        <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-2xl w-full flex flex-col max-h-[90vh]">
+            {{-- Pevná hlavička --}}
+            <div class="p-6 border-b border-slate-700">
+                <h2 class="text-2xl font-bold text-emerald-400">Uzavření návštěvy</h2>
+            </div>
+            
+            {{-- Skrolovatelný obsah --}}
+            <div class="overflow-y-auto flex-1 p-6">
+                <div class="space-y-4">
+                    <p class="text-slate-300">Tato akce uzavře návštěvu a odepíše použitý materiál ze skladu:</p>
+                    
+                    <template x-if="closeVisitModal.visit">
+                        <div>
+                            <div class="glass border border-slate-700 rounded-lg p-4 mb-4">
+                                <h3 class="font-semibold mb-3 text-emerald-300">📦 Materiál k odpisu:</h3>
+                                <div class="space-y-2">
+                                    <template x-for="service in closeVisitModal.visit.services" :key="service.title">
+                                        <div class="text-sm">
+                                            <div class="font-semibold text-slate-200" x-text="service.title"></div>
+                                            <template x-if="service.products && service.products.length > 0">
+                                                <div>
+                                                    <template x-for="product in service.products" :key="product.name">
+                                                        <div class="ml-4 text-slate-400">
+                                                            • <span x-text="product.name"></span>: 
+                                                            <span class="text-red-400 font-semibold" x-text="'-' + Number(product.deducted_units).toFixed(3) + ' ks'"></span>
+                                                            (<span x-text="product.used_grams"></span> g)
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                            <template x-if="!service.products || service.products.length === 0">
+                                                <div class="ml-4 text-slate-500 text-xs italic">bez materiálu</div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="glass border border-amber-600 rounded-lg p-4 bg-amber-500/10">
+                                <p class="text-amber-300 font-semibold">⚠️ Upozornění:</p>
+                                <p class="text-sm text-slate-300 mt-1">Po uzavření již nebude možné návštěvu upravovat a materiál bude trvale odepsán ze skladu.</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            {{-- Pevná patička s tlačítky --}}
+            <div class="p-6 border-t border-slate-700">
+                <div class="flex gap-3">
+                    <button @click="closeCloseModal()" class="flex-1 px-4 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition">
+                        Zrušit
+                    </button>
+                    <form x-bind:action="closeVisitModal.visit?.close_url" method="POST" class="flex-1">
+                        @csrf
+                        <button type="submit" class="w-full px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-400 transition font-semibold">
+                            🔒 Uzavřít a odepsat
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
+    </template>
 </div>
 
 <script>
@@ -1927,6 +2034,7 @@
                 alpineData.receiptData.services = visit.services || [];
                 alpineData.receiptData.retail = visit.retail || [];
                 alpineData.receiptData.totalPrice = visit.total_price;
+                alpineData.receiptData.retailPrice = visit.retail_price || 0;
             }
         }
     }

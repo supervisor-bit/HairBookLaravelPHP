@@ -49,6 +49,7 @@ class VisitController extends Controller
             'occurred_at' => ['nullable', 'date'],
             'note' => ['nullable', 'string'],
             'total_price' => ['nullable', 'numeric', 'min:0'],
+            'retail_price' => ['nullable', 'numeric', 'min:0'],
             'services' => ['array'],
             'services.*.title' => ['nullable', 'string', 'max:255'],
             'services.*.note' => ['nullable', 'string'],
@@ -72,6 +73,7 @@ class VisitController extends Controller
                 'occurred_at' => $validated['occurred_at'] ?? now(),
                 'note' => $validated['note'] ?? null,
                 'total_price' => $validated['total_price'] ?? 0,
+                'retail_price' => $validated['retail_price'] ?? null,
             ]);
 
             $position = 1;
@@ -128,10 +130,9 @@ class VisitController extends Controller
 
         $clientId = $visit?->client_id ?? $validated['client_id'];
 
-        return redirect()->route('dashboard', ['section' => 'clients', 'client' => $clientId])->with(
-            'status',
-            $closeNow ? 'Návštěva uzavřena a odepsána ze skladu.' : 'Návštěva uložená jako koncept.'
-        );
+        return redirect()->route('dashboard', ['section' => 'clients', 'client' => $clientId])
+            ->with('status', $closeNow ? 'Návštěva uzavřena a odepsána ze skladu.' : 'Návštěva uložená jako koncept.')
+            ->with('newVisitId', $visit->id);
     }
 
     public function close(Visit $visit, VisitClosingService $closer)
@@ -142,7 +143,9 @@ class VisitController extends Controller
 
         $closer->close($visit);
 
-        return redirect()->back()->with('status', 'Návštěva uzavřena a odepsána ze skladu.');
+        return redirect()->back()
+            ->with('status', 'Návštěva uzavřena a odepsána ze skladu.')
+            ->with('newVisitId', $visit->id);
     }
 
     public function duplicate(Request $request, Visit $visit, VisitClosingService $closer)
@@ -157,6 +160,7 @@ class VisitController extends Controller
         $newVisit = null;
 
         DB::transaction(function () use (&$newVisit, $visit, $occurredAt, $closeNow, $closer) {
+            // Duplikace bez retail_price - produkty pro domácí použití se neduplikují
             $newVisit = Visit::create([
                 'client_id' => $visit->client_id,
                 'occurred_at' => $occurredAt,
