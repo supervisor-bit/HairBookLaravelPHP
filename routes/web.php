@@ -35,6 +35,7 @@ Route::middleware(['check.app.password'])->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
     Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
     Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
+    Route::post('/appointments/check-availability', [AppointmentController::class, 'checkAvailability'])->name('appointments.check-availability');
 
 Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
 Route::put('/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
