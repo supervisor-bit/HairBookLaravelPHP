@@ -2,6 +2,11 @@
 
 Návod jak vytvořit standalone desktopovou aplikaci pro Windows z HairBook systému.
 
+> ⚠️ **Poznámka pro macOS uživatele:** Na Macu **nelze přímo vytvořit Windows .exe**. Potřebuješ buď:
+> - Virtuální Windows (Parallels Desktop, VMware Fusion, VirtualBox)
+> - Přístup k fyzickému Windows PC
+> - Cloud VM s Windows (Azure, AWS)
+
 ## 🎯 Možnosti
 
 ### 1. Electron aplikace (doporučeno)
@@ -542,11 +547,120 @@ choco install hairbook
 
 ---
 
-**Další kroky:**
-1. Rozhodnout mezi Electron/PHP Desktop
-2. Vytvořit ikonu aplikace
-3. Build a testování
-4. Vytvoření installeru
-5. Distribuce
+## 🍎 Pro macOS vývojáře
 
-Chceš, abych vytvořil kompletní Electron setup pro tvůj projekt?
+Pokud vyvíjíš na Macu, máš tyto možnosti:
+
+### 1. Virtuální Windows (doporučeno)
+```bash
+# Parallels Desktop (platené, nejrychlejší)
+https://www.parallels.com/
+
+# VMware Fusion (platené)
+https://www.vmware.com/products/fusion.html
+
+# VirtualBox (zdarma)
+https://www.virtualbox.org/
+```
+
+Po instalaci Windows VM:
+1. Sdílej složku projektu do VM
+2. Otevři ve Windows
+3. Pokračuj podle Electron návodu výše
+
+### 2. Windows PC přes síť
+Pokud máš přístup k Windows PC:
+```bash
+# Na Macu - sdílení přes Git
+git push origin main
+
+# Na Windows PC
+git pull origin main
+# Build podle návodu výše
+```
+
+### 3. Cloud Windows VM
+```bash
+# Azure, AWS, nebo DigitalOcean Windows Server
+# Připoj se přes RDP
+# Naklonuj projekt a buildni
+```
+
+### 4. Nejjednodušší: Jen distribuuj web
+Místo desktop aplikace můžeš:
+- Hostovat na lokálním serveru (např. na routeru s USB)
+- PWA (Progressive Web App) - funguje offline v prohlížeči
+- Poskytovat jako webovou službu
+
+---
+
+## 📱 Alternativa: Progressive Web App (PWA)
+
+Mnohem jednodušší než desktop app:
+
+```javascript
+// public/service-worker.js
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open('hairbook-v1').then((cache) => {
+            return cache.addAll([
+                '/',
+                '/css/app.css',
+                '/js/app.js'
+            ]);
+        })
+    );
+});
+
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+        })
+    );
+});
+```
+
+```json
+// public/manifest.json
+{
+    "name": "HairBook",
+    "short_name": "HairBook",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#5b21b6",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
+```
+
+**Výhody PWA:**
+- ✅ Funguje na Windows, Mac, Linux, Android, iOS
+- ✅ Offline režim
+- ✅ Instalace přímo z prohlížeče
+- ✅ Žádný build proces
+- ✅ Automatické aktualizace
+
+---
+
+**Doporučení:**
+- **Pro sebe (macOS):** Běž jako web nebo PWA
+- **Pro zákazníky (Windows):** Najdi kamaráda s Windows PC nebo použij VM
+
+**Další kroky:**
+1. Rozhodnout: Desktop app vs PWA vs Web
+2. Pokud desktop: Sežeň přístup k Windows
+3. Vytvořit ikonu aplikace
+4. Build a testování
+5. Distribuce
