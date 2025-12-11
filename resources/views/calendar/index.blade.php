@@ -63,8 +63,16 @@
                class="flex items-center gap-3 px-3 py-3 rounded-xl transition bg-slate-800 text-white">
                 <span class="h-2 w-2 rounded-full bg-indigo-400 shadow-[0_0_0_6px_rgba(129,140,248,0.15)]"></span>
                 <div>
-                    <div class="text-sm font-semibold">📅 Kalendář</div>
+                    <div class="text-sm font-semibold">📅 Denní kalendář</div>
                     <div class="text-xs text-slate-400">Denní rozvrh</div>
+                </div>
+            </a>
+            <a href="{{ route('calendar.week') }}"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
+                <span class="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_0_6px_rgba(167,139,250,0.15)]"></span>
+                <div>
+                    <div class="text-sm font-semibold">📆 Týdenní přehled</div>
+                    <div class="text-xs text-slate-400">Celý týden</div>
                 </div>
             </a>
             <a href="{{ route('finance.index') }}"
@@ -297,6 +305,10 @@
                         <h3 class="text-2xl font-bold text-white">{{ $selectedDate->format('d.m.Y') }}</h3>
                         <p class="text-slate-400 text-sm">{{ $selectedDate->locale('cs')->translatedFormat('l') }}</p>
                     </div>
+                    <a href="{{ route('calendar.week', ['date' => $selectedDate->format('Y-m-d')]) }}" 
+                       class="px-4 py-2 hover:bg-slate-700/50 rounded-lg transition-colors text-violet-300 hover:text-violet-200">
+                        📆 Týdenní přehled
+                    </a>
                     <button @click="changeDate(1)" class="px-4 py-2 hover:bg-slate-700/50 rounded-lg transition-colors">
                         Následující →
                     </button>

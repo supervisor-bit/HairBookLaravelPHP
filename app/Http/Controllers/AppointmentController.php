@@ -25,6 +25,36 @@ class AppointmentController extends Controller
         return view('calendar.index', compact('appointments', 'selectedDate', 'clients'));
     }
 
+    public function week(Request $request)
+    {
+        $date = $request->get('date', now()->format('Y-m-d'));
+        $selectedDate = Carbon::parse($date);
+        
+        // Získat pondělí daného týdne
+        $weekStart = $selectedDate->copy()->startOfWeek();
+        $weekEnd = $selectedDate->copy()->endOfWeek();
+
+        // Získat všechny události pro celý týden
+        $appointments = Appointment::with('client')
+            ->whereBetween('date', [$weekStart, $weekEnd])
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
+
+        // Seskupit události podle dnů
+        $appointmentsByDay = [];
+        for ($i = 0; $i < 7; $i++) {
+            $day = $weekStart->copy()->addDays($i);
+            $appointmentsByDay[$day->format('Y-m-d')] = $appointments->filter(function($appointment) use ($day) {
+                return Carbon::parse($appointment->date)->isSameDay($day);
+            });
+        }
+
+        $clients = Client::orderBy('last_name')->get();
+
+        return view('calendar.week', compact('appointmentsByDay', 'weekStart', 'weekEnd', 'selectedDate', 'clients'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
