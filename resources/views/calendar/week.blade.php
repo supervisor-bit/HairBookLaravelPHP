@@ -60,19 +60,11 @@
                 </div>
             </a>
             <a href="{{ route('calendar.index') }}"
-               class="flex items-center gap-3 px-3 py-3 rounded-xl transition text-slate-300 hover:bg-slate-800/60">
+               class="flex items-center gap-3 px-3 py-3 rounded-xl transition bg-slate-800 text-white">
                 <span class="h-2 w-2 rounded-full bg-indigo-400 shadow-[0_0_0_6px_rgba(129,140,248,0.15)]"></span>
                 <div>
-                    <div class="text-sm font-semibold">📅 Denní kalendář</div>
+                    <div class="text-sm font-semibold">📅 Kalendář</div>
                     <div class="text-xs text-slate-400">Denní rozvrh</div>
-                </div>
-            </a>
-            <a href="{{ route('calendar.week') }}"
-               class="flex items-center gap-3 px-3 py-3 rounded-xl transition bg-slate-800 text-white">
-                <span class="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_0_6px_rgba(167,139,250,0.15)]"></span>
-                <div>
-                    <div class="text-sm font-semibold">📆 Týdenní přehled</div>
-                    <div class="text-xs text-slate-400">Celý týden</div>
                 </div>
             </a>
             <a href="{{ route('finance.index') }}"
@@ -162,7 +154,7 @@
                 </div>
 
                 <!-- Navigation -->
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 mb-4">
                     <button @click="goToPreviousWeek()" 
                             class="px-5 py-2.5 rounded-xl glass border border-slate-700 hover:bg-slate-800/60 transition text-sm">
                         ← Předchozí týden
@@ -175,9 +167,16 @@
                             class="px-5 py-2.5 rounded-xl glass border border-slate-700 hover:bg-slate-800/60 transition text-sm">
                         Následující týden →
                     </button>
-                    <a href="{{ route('calendar.index', ['date' => $selectedDate->format('Y-m-d')]) }}" 
-                       class="ml-auto px-5 py-2.5 rounded-xl glass border border-slate-700 hover:bg-slate-800/60 transition text-sm">
-                        📅 Denní zobrazení
+                </div>
+                <!-- View Switcher -->
+                <div class="flex items-center justify-center gap-2">
+                    <a href="{{ route('calendar.index', ['date' => $selectedDate->format('Y-m-d')]) }}"
+                       class="px-4 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
+                        📅 Denní
+                    </a>
+                    <a href="{{ route('calendar.week', ['date' => $selectedDate->format('Y-m-d')]) }}"
+                       class="px-4 py-2 rounded-lg bg-violet-600 text-white font-medium transition-colors">
+                        📆 Týdenní
                     </a>
                 </div>
             </div>
